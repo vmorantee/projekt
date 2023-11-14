@@ -34,18 +34,19 @@ map <string,double(*)(double)> initFunc(){
 
 }
 map<string,double(*)(double)> func=initFunc();
+
+bool isFunc(string pFunc){
+    return func.find(pFunc)!=func.end();
+}
 int rnpPrio(string op){
-    if(op=="^") return 3;
+    if(isFunc(op)) return 4;
+    else if(op=="^") return 3;
     else if(op=="/"||op=="*") return 2;
     else if(op=="+"||op=="-") return 1;
     else return 0;
 }
-bool isFunc(string pFunc){
-    return func.find(pFunc)!=func.end();
-}
-
 bool isOperator(string isOp) {
-    return (isOp == "+" || isOp == "-" || isOp == "*" || isOp == "/" || isOp == "^"||isOp==")"||isOp=="(");
+    return (isOp == "+" || isOp == "-" || isOp == "*" || isOp == "/" || isOp == "^"||isOp==")"||isOp=="("||isFunc(isOp));
 }
 
 string RPN(string equation){
@@ -57,6 +58,7 @@ string RPN(string equation){
         else{
             if(nfind){
                 result+=equation.substr(i-nfind,nfind);
+                result+=" ";
                 nfind=0;
             }
             if(isalpha(equation[i])){
@@ -66,10 +68,11 @@ string RPN(string equation){
             if(isOperator(op)){
                 if(lfind==1&&isalpha(equation[i-1])){
                     result+=equation[i-1];
+                    result+=" ";
                     lfind=0;
                 }
-                else if(lfind&&isFunc(equation.substr(i-nfind-1,nfind))){
-                    ostack.push(equation.substr(i-nfind-1,nfind));
+                else if(lfind&&isFunc(equation.substr(i-lfind,lfind))){
+                    ostack.push(equation.substr(i-lfind,lfind));
                     lfind=0;
                 }
                 if(ostack.empty())
@@ -80,6 +83,7 @@ string RPN(string equation){
                     else if(op==")"){
                         while(!ostack.empty()&&ostack.top()!="("){
                             result+=ostack.top();
+                            result+=" ";
                             ostack.pop();
                         }
                         if(ostack.top()=="(") ostack.pop();
@@ -90,6 +94,7 @@ string RPN(string equation){
                     else if(rnpPrio(op)<=rnpPrio(ostack.top())){
                         while(!ostack.empty()&&rnpPrio(op)<=rnpPrio(ostack.top())&&ostack.top()!="("){
                             result+=ostack.top();
+                            result+=" ";
                             ostack.pop();
                         }
                         ostack.push(op);
@@ -98,9 +103,11 @@ string RPN(string equation){
             }
         }
     }
-    if(nfind) result+=equation.substr(equation.length()-nfind,nfind);
+    if(nfind){result+=equation.substr(equation.length()-nfind,nfind); result+=" ";};
+    if(lfind){result+=equation.substr(equation.length()-lfind,lfind); result+=" ";};
     while(!ostack.empty()){
         result+=ostack.top();
+        result+=" ";
         ostack.pop();
     }
     return result;
