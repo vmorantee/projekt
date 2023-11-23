@@ -3,7 +3,7 @@ pi*x
 -pi*x
 -1.507
 -sin(-x^(2x+x^2))
-0.52544
+0.405
 ctg(-x)+exp(x^sin(x*pi))
 0.128491
 ctg(-x)+ln(exp(x^6))+cos(pi)-sin(x)^2
