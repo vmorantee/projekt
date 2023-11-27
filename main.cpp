@@ -6,10 +6,11 @@
 #include <map>
 #include <stack>
 #include <vector>
+#include <sstream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
-//todo test file
 double basicOperation(string op,double num1, double num2){
     if(op=="^") return pow(num1,num2);
     if(op=="+") return num1+num2;
@@ -59,28 +60,32 @@ int rnpPrio(string op){
 bool isOperator(string isOp) {
     return (isOp == "+" || isOp == "-" || isOp == "*" || isOp == "/" || isOp == "^"||isOp==")"||isOp=="("||isFunc(isOp));
 }
-string removeSpaces(string input){
-    string res="";
+string fixSpaces(string input){
+    stringstream str;
     for(int i=0;i<input.length();i++){
-        if(input[i]!=' ') res+=input[i];
+        if(isOperator(input.substr(i,1))) str<<" "<<input[i]<<" ";
+        else if(input[i]!=' ') str<<input[i];
     }
-    return res;
+    return str.str();
 }
 
-double evalFun(vector<string>RPNV,double value){
+double evalFun(string RPNV,double value){
     stack<string>operrands;
     double result=0,pres,num1,num2;
+    istringstream temp(RPNV);
     int i=0;
-    for(const auto x: RPNV){
+    string x;
+    while(temp>>x)
+    { 
         if(isdigit(x[0])){
             operrands.push(x);
         }
         else if(x=="x"){
             operrands.push(to_string(value));
         }
+        else if(x=="pi") operrands.push(to_string(M_PI));
         else if(isFunc(x)){
-            if(x[0]=='-') pres=eval(func[x],stod(operrands.top()))*-1;
-            else pres=eval(func[x],stod(operrands.top()));
+            pres=eval(func[x],stod(operrands.top()));
             operrands.pop();
             operrands.push(to_string(pres));
         }
@@ -97,71 +102,10 @@ double evalFun(vector<string>RPNV,double value){
     if(operrands.size()==1) result+=stod(operrands.top());
     return result;
 }
-vector<string>RPN(string equation){
-    stack<string>ostack;
-    int nfind=0,lfind=0,currPrio;
-    string op,top;
-    vector<string>result;
-    for(int i=0;i<equation.length();i++){
-        if(isdigit(equation[i])||equation[i]=='.') nfind++;
-        else{
-            if(nfind){
-                result.insert(result.end(),equation.substr(i-nfind,nfind));
-                nfind=0;
-            }
-            if(isalpha(equation[i])){
-                lfind++;
-            }
-            op=equation.substr(i,1);
-            if(isOperator(op)){
-                if(lfind==1&&isalpha(equation[i-1])){
-                    result.insert(result.end(),equation.substr(i-1,1));
-                    lfind=0;
-                }
-                else if(lfind&&isFunc(equation.substr(i-lfind,lfind))){
-                    if(equation.substr(i-lfind,lfind)=="pi") result.insert(result.end(),to_string(M_PI));
-                    else ostack.push(equation.substr(i-lfind,lfind));
-                    lfind=0;
-                }
-                if(ostack.empty())
-                    ostack.push(op);
-                else{
-                    if(op=="(")
-                        ostack.push(op);
-                    else if(op==")"){
-                        while(!ostack.empty()&&ostack.top()!="("){
-                            result.insert(result.end(),ostack.top());
-                            ostack.pop();
-                        }
-                        if(ostack.top()=="(") ostack.pop();
-                        else {cout<<"Niepoprawne wyrażenie(niedomknięty nawias)";break;}
-                    }
-                    else if(rnpPrio(op)>rnpPrio(ostack.top()))
-                        ostack.push(op);
-                    else if(rnpPrio(op)<=rnpPrio(ostack.top())){
-                        while(!ostack.empty()&&rnpPrio(op)<=rnpPrio(ostack.top())&&ostack.top()!="("){
-                            result.insert(result.end(),ostack.top());
-                            ostack.pop();
-                        }
-                        ostack.push(op);
-                    }
-                }
-            }
-        }
-    }
-    if(nfind)result.insert(result.end(),equation.substr(equation.length()-nfind,nfind));
-    if(lfind)result.insert(result.end(),equation.substr(equation.length()-lfind,lfind));
-    while(!ostack.empty()){
-        result.insert(result.end(),ostack.top());
-        ostack.pop();
-    }
-    return result;
-}
-
 string checkString(string input){
     bool digit=false,alpha=false,op=false;
-    int len=input.length(),i=0;
     if(input[0]=='-') input.insert(0,"0");
+    int len=input.length(),i=0;
     while(i<len){
         char temp=input[i];
         if(input[i]=='('&&input[i+1]=='-') input.insert(i+1,"0");
@@ -183,22 +127,50 @@ string checkString(string input){
     }
     return input;
 }
-double calculateIntegral(double start, double stop, int precision,string equation){
-    equation=removeSpaces(equation);
+string RPN(string equation){
     equation=checkString(equation);
-    vector<string> RPNV=RPN(equation);
-    double result=0,width,a=evalFun(RPNV,start),b;
-    width=(stop-start)/precision;
-    for(int i=0;i<precision;i++){
-        b=evalFun(RPNV,start+width*i);
-        //cout<<result<<" "<<width*i<<" "<<width*(i+1)<<" "<<a<<" "<<b<<" "<<((a+b)*width)/2<<endl;
-        result+=((a+b)*width)/2;
-        a=b;
+    equation=fixSpaces(equation);
+    cout<<endl<<equation<<endl;
+    stack<string>ostack;
+    int nfind=0,lfind=0,currPrio;
+    string op,top,curr,result="";
+    istringstream temp(equation);
+    while(temp>>curr){
+        if(isdigit(curr[0])||curr=="x"){
+            result+=curr+" ";
+        }
+        else if(isOperator(curr)){
+            if(ostack.empty()||curr=="(") ostack.push(curr);
+            else{
+                while(!ostack.empty()&&rnpPrio(curr)<=rnpPrio(ostack.top())&&ostack.top()!="("){
+                    result+=ostack.top()+" ";
+                    ostack.pop();
+                }
+                if(curr==")") ostack.pop();
+                else ostack.push(curr);
+            }
+        }
     }
-    RPNV.clear();
-    RPNV.shrink_to_fit();
+    while(!ostack.empty()){
+        result+=ostack.top()+" ";
+        ostack.pop();
+    }
     return result;
 }
+double calculateIntegral(double start, double stop, int precision, string equation) {
+    equation=checkString(equation);
+    equation=fixSpaces(equation);
+    string RPNV=RPN(equation);
+    double result=0,width,a=evalFun(RPNV,start),b;
+    width =(stop-start)/precision;
+    for(int i=0;i<precision;i++){
+        b=evalFun(RPNV,start+width*i);
+        result+=((a+b)*width) / 2;
+        a=b;
+    }
+    return result;
+}
+
 int initInterface(){
     while(true){
         cout<<"Program liczący całkę oznaczoną złożoną metodą trapezów\n1-Wpisz funkcje do obliczenia całki\n2-Dane testowe pobierane z pliku\n3-Zakończ\n";
@@ -226,8 +198,9 @@ int initInterface(){
                 cin>>precision;
                 try
                 {
-                    result=calculateIntegral(start,stop,precision,input);
-                    cout<<"Całka dla podanej funkcji wynosi "<<result<<endl;
+                    cout<<setprecision(3);
+                    cout<<calculateIntegral(start,stop,precision,input);
+                    
                 }
                 catch(const std::exception& e)
                 {
@@ -255,5 +228,5 @@ int main() {
     system("chcp 1250>>null");
     setlocale(LC_CTYPE, "Polish");
     initInterface();
-    return 0;
+   return 0;
 }
