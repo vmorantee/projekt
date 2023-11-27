@@ -73,7 +73,6 @@ double evalFun(string RPNV,double value){
     stack<string>operrands;
     double result=0,pres,num1,num2;
     istringstream temp(RPNV);
-    int i=0;
     string x;
     while(temp>>x)
     { 
@@ -97,7 +96,6 @@ double evalFun(string RPNV,double value){
             pres=basicOperation(x,num1,num2);
             operrands.push(to_string(pres));
         } 
-        i++;
     }
     if(operrands.size()==1) result+=stod(operrands.top());
     return result;
@@ -130,10 +128,8 @@ string checkString(string input){
 string RPN(string equation){
     equation=checkString(equation);
     equation=fixSpaces(equation);
-    cout<<endl<<equation<<endl;
     stack<string>ostack;
-    int nfind=0,lfind=0,currPrio;
-    string op,top,curr,result="";
+    string curr,result="";
     istringstream temp(equation);
     while(temp>>curr){
         if(isdigit(curr[0])||curr=="x"){
@@ -158,8 +154,6 @@ string RPN(string equation){
     return result;
 }
 double calculateIntegral(double start, double stop, int precision, string equation) {
-    equation=checkString(equation);
-    equation=fixSpaces(equation);
     string RPNV=RPN(equation);
     double result=0,width,a=evalFun(RPNV,start),b;
     width =(stop-start)/precision;
@@ -198,8 +192,9 @@ int initInterface(){
                 cin>>precision;
                 try
                 {
-                    cout<<setprecision(3);
-                    cout<<calculateIntegral(start,stop,precision,input);
+                    cout<<setprecision(5);
+                    cout<<"Calka oznaczona na podanym przedziale wynosi: ";
+                    cout<<calculateIntegral(start,stop,precision,input)<<endl;
                     
                 }
                 catch(const std::exception& e)
