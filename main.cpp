@@ -44,7 +44,6 @@ map <string,double(*)(double)> initFunc(){
     func["sqrt"] = sqrt;
     func["pi"] = [](double){return M_PI;};
     return func;
-
 }
 map<string,double(*)(double)> func=initFunc();
 bool isFunc(string pFunc){
@@ -188,7 +187,7 @@ int initInterface(){
                 if(choice==1) swap(start,stop);
                 }
             else{
-                cout<<"Wpisz precyzję(ilość trapezów)"<<endl;
+                cout<<"Wpisz ilość trapezów"<<endl;
                 cin>>precision;
                 try
                 {
@@ -208,7 +207,7 @@ int initInterface(){
             ifstream test("test.txt");
             string teststr,descstr;
             while(getline(test,teststr)&&getline(test,descstr)){
-                cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0,1 z precyzją 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
+                cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0,1 z iloscia trapezow 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
             }
             test.close();
         }else if(choice==3){
