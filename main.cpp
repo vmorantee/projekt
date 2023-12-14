@@ -207,7 +207,7 @@ int initInterface(){
             ifstream test("test.txt");
             string teststr,descstr;
             while(getline(test,teststr)&&getline(test,descstr)){
-                cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0,1 z iloscia trapezow 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
+                cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0., 1 z iloscia trapezow 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
             }
             test.close();
         }else if(choice==3){
