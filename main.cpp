@@ -165,9 +165,10 @@ double calculateIntegral(double start, double stop, int precision, string equati
 }
 
 int initInterface(){
-    while(true){
+    int choice =1;
+    while(choice!=3){
         cout<<"Program liczący całkę oznaczoną złożoną metodą trapezów\n1-Wpisz funkcje do obliczenia całki\n2-Dane testowe pobierane z pliku\n3-Zakończ\n";
-        int choice,schoice,precision;
+        int schoice,precision;
         double start,stop,result;
         string input;
         cin>>choice;
