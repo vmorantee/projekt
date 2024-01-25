@@ -154,8 +154,8 @@ string RPN(string equation){
 }
 double calculateIntegral(double start, double stop, int precision, string equation) {
     string RPNV=RPN(equation);
-    double result=0,width,a=evalFun(RPNV,start),b;
-    width =(stop-start)/precision;
+    double result=0,a=evalFun(RPNV,start),b=0;
+    double width =(stop-start)/precision;
     for(int i=0;i<precision;i++){
         b=evalFun(RPNV,start+width*i);
         result+=((a+b)*width) / 2;
@@ -164,16 +164,10 @@ double calculateIntegral(double start, double stop, int precision, string equati
     return result;
 }
 
-int initInterface(){
-    int choice =1;
-    while(choice!=3){
-        cout<<"Program liczący całkę oznaczoną złożoną metodą trapezów\n1-Wpisz funkcje do obliczenia całki\n2-Dane testowe pobierane z pliku\n3-Zakończ\n";
-        int schoice,precision;
-        double start,stop,result;
-        string input;
-        cin>>choice;
-        if(choice==1){
-            cout<<"Wpisz funkcje którą chcesz obliczyć"<<endl;
+void calcFIfc(){
+    string input;
+    float start,stop,schoice,choice,precision;
+    cout<<"Wpisz funkcje którą chcesz obliczyć"<<endl;
             cin.ignore();
             getline(cin,input);
             if(!checkParentheses(input)) cout<<"Błędne dane(niedomknięty/nieotwarty nawias)"<<endl;
@@ -204,24 +198,35 @@ int initInterface(){
                 
             }
             }
-        }else if(choice==2){
-            ifstream test("test.txt");
-            string teststr,descstr;
-            while(getline(test,teststr)&&getline(test,descstr)){
-                cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0.2, 1 z iloscia trapezow 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
-            }
-            test.close();
-        }else if(choice==3){
-            break;
+}
+void printFile(){
+        ifstream test("test.txt");
+        string teststr,descstr;
+        while(getline(test,teststr)&&getline(test,descstr)){
+            cout<<"Funkcja: "<<teststr<<endl<<"Jej całka wynosi(na przedziale 0.2, 1 z iloscia trapezow 1000) "<<calculateIntegral(0.2,1,1000,teststr)<<endl<<"Jej wartość teoretyczna(liczona z definicji całki) wynosi: "<<descstr<<endl;
+        }
+        test.close();
+}
+void prompt(){
+    int choice = -1;
+    while(choice!=3){
+            cout<<"Program liczący całkę oznaczoną złożoną metodą trapezów\n1-Wpisz funkcje do obliczenia całki\n2-Dane testowe pobierane z pliku\n3-Zakończ\n";
+        cin>>choice;
+        if(choice==1)
+        calcFIfc();
+        else if(choice==2)
+        printFile();
+        else if(choice==3){
+            return;
         }else{
             cout<<"Niepoprawny wybór"<<endl;
         }
     }
-    return 0;
 }
+
 int main() {
     system("chcp 1250>>null");
     setlocale(LC_CTYPE, "Polish");
-    initInterface();
+    prompt();
    return 0;
 }
